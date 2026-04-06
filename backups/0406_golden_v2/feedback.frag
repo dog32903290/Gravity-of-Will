@@ -10,9 +10,6 @@ uniform float uZoomSpeed;
 uniform float uRotationSpeed;
 uniform float uParticleAmount;
 uniform float uEmotionIntensity;
-uniform float uParticleSize;
-uniform float uDensityCap;
-uniform float uCenterHoleSize;
 uniform vec2 uMouse;
 uniform vec2 uResolution;
 
@@ -161,7 +158,7 @@ void main() {
       float angleGrid = floor(normalizedAngle * numSpokes);
       
       float h = hash(vec2(angleGrid, cycle * 7.33 + fi));
-      float isParticle = step(1.0 - mix(0.0001, uDensityCap, uParticleAmount), h);
+      float isParticle = step(1.0 - mix(0.0001, 0.4, uParticleAmount), h);
 
       float energyHash = hash(vec2(h, 44.0));
       float satIndiv = hash(vec2(h, 22.0)); 
@@ -188,7 +185,9 @@ void main() {
           vec3 peak  = vec3(0.95, 0.7, 0.2) * 0.9;
           particleColor = mix(mix(desat, vivid, satIndiv), peak, intensityMix * satIndiv);
           
-          dotSize = mix(0.0007, 0.004, t) * uParticleSize;
+          // 粒子全部縮小一倍
+          dotSize = mix(0.0007, 0.004, t); 
+          // 越靠近圓心(t=0)越虛/越亮，越靠近外圍(t=1)越銳利/越暗
           sharpnessP = mix(0.9, 0.02, t); 
           pushSign = 1.0; 
           fade = smoothstep(0.0, 0.1, t) * smoothstep(1.0, 0.5, t); 
@@ -204,7 +203,8 @@ void main() {
           vec3 peak  = vec3(0.2, 0.8, 0.95) * 0.9;
           particleColor = mix(mix(desat, vivid, satIndiv), peak, intensityMix * satIndiv);
 
-          dotSize = mix(0.0125, 0.0007, t) * uParticleSize;
+          // 粒子全部縮小一倍
+          dotSize = mix(0.0125, 0.0007, t);  
           sharpnessP = mix(0.02, 0.9, t); 
           pushSign = -1.8; 
           fade = smoothstep(0.0, 0.1, t) * (1.0 - smoothstep(0.7, 0.95, t));
@@ -276,8 +276,8 @@ void main() {
   float edge = smoothstep(0.1, 0.0, mudTexture) * smoothstep(-0.05, 0.1, mudTexture);
   plateShade += edge * 0.03; // 岩壁邊緣的高光
   
-  // 3D 深度模糊與暗化 (中心黑洞)
-  float mudVignette = smoothstep(uCenterHoleSize * 0.5, uCenterHoleSize * 0.5 + 0.4, distFromCenter);
+  // 3D 深度模糊與暗化 (無限遠的中心點一片漆黑)
+  float mudVignette = smoothstep(0.0, 0.6, distFromCenter); // 越接近 0 (深處) 越黑
   plateShade *= mudVignette;
 
   // 動態壓暗機制：白光越多，背景環境光越暗
@@ -287,7 +287,7 @@ void main() {
   vec3 finalMudColor = vec3(plateShade) * cracks;
 
   // 圓心光源的放射全局照明 (Light at the end of the tunnel)
-  float centerGlow = exp(-distFromCenter * (uBaseSharp - uEmotionIntensity * 3.0));
+  float centerGlow = exp(-distFromCenter * (7.0 - uEmotionIntensity * 3.0));
   // 亮度減半，保有顏色細節不至於爆光
   vec3 spotLightColor = vec3(0.9, 0.45, 0.1) * centerGlow * (1.0 - cracks * 0.9) * mix(0.2, 1.0, uEmotionIntensity);
   finalMudColor += spotLightColor * mudVignette * 1.5; // 邊緣反射光
