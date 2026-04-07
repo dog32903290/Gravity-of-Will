@@ -44,6 +44,16 @@
   - 鏡頭：Dolly 速度、旋轉速度
 - **v2.7 (Audio Engine)**: 三層聲音引擎，根音 D，Web Audio API。
   - `Space` 鍵啟動/暫停音頻
+- **v2.8 (Fullscreen)**: 全螢幕按鈕，隱藏瀏覽器網址列。
+  - 左上角半透明按鈕 `⛶` 或按 `F` 鍵進入全螢幕
+  - 全螢幕中按鈕變 `✕`，點擊或 `Esc` 退出
+- **v2.9 (Mixer + Particle Rework)**:
+  - 3 聲道 Mixer UI（Bass/Orb/Particles）：音量、3-band EQ、立體聲寬度
+  - 粒子琶音：D major 2 octave，`particleAmount` 控制 poly 數+音域+琶音速度
+  - `particleSize` 控制 envelope gate + auto-pan LFO 速度（不再控制音量）
+  - `densityCap` 控制 poly 數量（2~24 voices）
+  - Bass/Orb 寬度用 Haas effect，Particles 寬度用 per-voice auto-pan
+  - `H` 鍵同時隱藏 GUI 和 Mixer
 
 ## 5. 音頻引擎 (Audio Engine v2.7)
 
@@ -61,11 +71,20 @@ Particles  ─┤                              ↑
 |:--|:--|:--|:--|:--|
 | **泥沼 Bass** | D2 saw + D1 sine sub | 37–73 Hz | `mudSpeed` → lowpass cutoff (80–2500Hz)；`feedbackDecay` → delay feedback (0–0.65) | 低=悶吼，高=呲；高衰減=更多高頻延遲尾巴 |
 | **光球 Orb** | D6 sine ×2 (微detune) | 1175 Hz | `baseSharp` ≤5 觸發（attack ~2s）；`emotionIntensity` → 音量 | 銳度拉到最小開啟，情緒強度控制響度 |
-| **粒子** | 16× sine | 698–2349 Hz | `particleAmount` → 活躍數+小調→大調漸變；`particleSize` → 音量 | 每粒子 ±5Hz 漂移，密度低=D小調，密度高=D大調 |
+| **粒子** | 2~24× bandpass noise (hi-hat) | 1000–2500 Hz | `particleAmount` → 觸發速率 (5→40Hz)；`densityCap` → poly 數 (2~24)；`particleSize` → attack+decay 長度+auto-pan 速度；`emotionIntensity` → HPF cutoff (800→3000Hz) | 無 reverb/delay，紋理清晰。小=砂粒click，大=swoosh。情緒高=極亮銳利 |
 
-### 音階設計 (Root: D)
-- **D 小調** (低密度): F5 G5 A5 D6 E6 G6 A6 C7
-- **D 大調** (高密度): G5 A5 D6 E6 F#6 B6 C#7 D7
+### 粒子 Signal Chain (v3.0)
+```
+共用 noise buffer → BufferSource(loop) → BPF(1000~2500Hz) → HPF(ei) → VCA(envelope) → Pan → particleBus → strip → masterGain
+```
+- 無 reverb、無 delay，紋理清楚
+- 24 voice 各自 BPF center freq 均勻分佈，Q=3~5
+- Per-voice auto-pan，golden ratio 錯開速度
+
+### Mixer (v2.9)
+- 3 聲道：Bass Drone / Orb / Particles
+- 每聲道：Volume (0–150%), 3-band EQ (±12dB: 200Hz/1kHz/4kHz), Stereo Width
+- Bass/Orb width: Haas delay (0–15ms)；Particles width: auto-pan LFO amplitude
 
 ---
 *Generated for AI Efficiency. Context optimized for Claude/Gemini.*

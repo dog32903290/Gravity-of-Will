@@ -20,6 +20,53 @@
     }
     .midi-map-btn.mapped { background: #0055cc; color: #fff; border-color: #0088ff; }
     @keyframes midi-pulse { from{opacity:1} to{opacity:.4} }
+    /* LFO mapping mode — highlight clickable sliders */
+    .lil-gui.lfo-mapping .controller { cursor: crosshair !important; }
+    .lil-gui.lfo-mapping .controller:hover { background: rgba(0,180,255,0.15) !important; }
+    #mixer.lfo-mapping .mix-row { cursor: crosshair; }
+    #mixer.lfo-mapping .mix-row:hover { background: rgba(0,180,255,0.2); border-radius: 3px; }
+    .fullscreen-btn {
+      position: fixed; top: 12px; left: 12px; z-index: 10000;
+      background: rgba(255,255,255,0.08); color: #aaa;
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;
+      width: 36px; height: 36px; font-size: 18px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    .fullscreen-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+    /* --- Mixer --- */
+    #mixer {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      z-index: 9999; display: flex; gap: 6px;
+      background: rgba(0,0,0,0.92); padding: 14px 20px 16px;
+      font-family: monospace; color: #aaa; font-size: 12px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px 10px 0 0;
+      max-width: 96vw;
+    }
+    .mix-ch {
+      display: flex; flex-direction: column; gap: 6px;
+      width: 210px; min-width: 0; padding: 6px 10px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .mix-ch:last-child { border-right: none; }
+    .mix-label { font-weight: bold; color: #fff; font-size: 13px; text-align: center; margin-bottom: 4px; }
+    .mix-row { display: flex; align-items: center; gap: 6px; height: 22px; }
+    .mix-row span:first-child { width: 28px; text-align: right; color: #555; font-size: 11px; flex-shrink: 0; }
+    .mix-row input[type="range"] { flex: 1; height: 6px; }
+    .mix-row .mix-val { width: 34px; text-align: right; color: #666; font-size: 10px; flex-shrink: 0; }
+    .mix-row span:first-child:hover { color: #aaa; }
+    .mix-row span.listening { color: #ff6600 !important; animation: midi-pulse .4s infinite alternate; }
+    .mix-row span.mapped { color: #0088ff !important; }
+    #mixer input[type="range"] {
+      -webkit-appearance: none; appearance: none;
+      background: #333; border-radius: 2px; outline: none; cursor: pointer;
+    }
+    #mixer input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 12px; height: 12px;
+      background: #777; border-radius: 50%;
+    }
+    #mixer input[type="range"]::-webkit-slider-thumb:hover { background: #fff; }
   </style>
 </head>
 <body>
